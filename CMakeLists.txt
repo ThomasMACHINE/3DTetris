@@ -57,7 +57,7 @@ add_executable(${PROJECT_NAME} "blockbuster/blockbuster.cpp"
     "blockbuster/include/layers/game-layer.h"
     "blockbuster/include/color.h" 
     "blockbuster/include/inanimate-objects/pellet.h"
-    "blockbuster/include/logic/collision.h")
+    "blockbuster/include/logic/collision.h" "blockbuster/include/game-objects/grid.h" "blockbuster/include/characters/player.h" "blockbuster/include/game-objects/box.h" "blockbuster/include/layers/gameLayer.h")
 
 
 # Engine is the Engine .lib file The rest of linked libraries are there

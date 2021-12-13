@@ -3,7 +3,7 @@
 //#include "pacman/include/layers/sandbox-layer.h"
 #include "blockbuster/include/characters/pacman.h"
 #include "blockbuster/include/inanimate-objects/map.h"
-#include "blockbuster/include/layers/game-layer.h"
+#include "blockbuster/include/layers/gameLayer.h"
 
 class PacmanGame : public engine::AppFrame {
 public:

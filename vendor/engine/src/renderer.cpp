@@ -272,7 +272,7 @@ namespace engine {
 		// using TRS method
 		glm::mat4 transform = 
 			glm::translate(glm::mat4(1.0f), position) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			glm::scale(glm::mat4(1.0f), { size });
 		
 		/*
 		// Iterate and set attributes of quad in vertex buffer

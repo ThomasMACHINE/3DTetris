@@ -40,7 +40,7 @@ namespace engine {
 		bool m_Flight;										// Camera ascension and decension capability switch 
 		bool m_FirstMousePosition = true;					// For setting initial looking direction position
 
-		glm::vec3 m_CameraPosition = { 0.0f, 0.0f, -10.0f };	// Initial camera position
+		glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 0.0f };	// Initial camera position
 		glm::vec3 m_LastMousePosition = { 0.0f, 0.0f, 0.0f };	// Last mouse position for handling of looking direction
 		glm::vec3 m_CameraRotation = { 0.0f, 0.0f, 0.0f };		// Per axis
 		float m_LookSensitivity = 0.7f;							// Looking sensitivity when using mouse
