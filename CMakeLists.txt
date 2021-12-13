@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 # Project definition
 set(SANDBOX_VERSION "0.0.1")
 project(
-  Pacman
+  Blockbuster
   VERSION ${SANDBOX_VERSION}
   LANGUAGES CXX)
 
@@ -49,14 +49,15 @@ add_subdirectory(vendor/engine)
 # Create the executable
 # Change from pacman/pacman.cpp to sandbox/sandbox.cpp to compile sandbox env
 # Executable will always be named after project name
-add_executable(${PROJECT_NAME} pacman/pacman.cpp
-    "pacman/include/characters/ghost.h"
-    "pacman/include/characters/pacman.h"
-    "pacman/include/inanimate-objects/wall.h"
-    "pacman/include/inanimate-objects/map.h"
-    "pacman/include/layers/game-layer.h"
-    "pacman/include/color.h" "pacman/include/inanimate-objects/pellet.h"
-    "pacman/include/logic/collision.h")
+add_executable(${PROJECT_NAME} "blockbuster/blockbuster.cpp"
+    "blockbuster/include/characters/ghost.h"
+    "blockbuster/include/characters/pacman.h"
+    "blockbuster/include/inanimate-objects/wall.h"
+    "blockbuster/include/inanimate-objects/map.h"
+    "blockbuster/include/layers/game-layer.h"
+    "blockbuster/include/color.h" 
+    "blockbuster/include/inanimate-objects/pellet.h"
+    "blockbuster/include/logic/collision.h")
 
 
 # Engine is the Engine .lib file The rest of linked libraries are there
@@ -93,7 +94,7 @@ add_custom_command(
 # Assets to be copied to build folder
 TARGET ${PROJECT_NAME} POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory
-${CMAKE_CURRENT_LIST_DIR}/pacman/assets
+${CMAKE_CURRENT_LIST_DIR}/blockbuster/assets
 ${CMAKE_CURRENT_BINARY_DIR}/bin/assets
 
 # Assets to be copied to build folder

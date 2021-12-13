@@ -1,9 +1,9 @@
 #include <engine/engine.h>
 
 //#include "pacman/include/layers/sandbox-layer.h"
-#include "pacman/include/characters/pacman.h"
-#include "pacman/include/inanimate-objects/map.h"
-#include "pacman/include/layers/game-layer.h"
+#include "blockbuster/include/characters/pacman.h"
+#include "blockbuster/include/inanimate-objects/map.h"
+#include "blockbuster/include/layers/game-layer.h"
 
 class PacmanGame : public engine::AppFrame {
 public:
@@ -14,7 +14,7 @@ public:
 
 
 	PacmanGame(engine::WindowSpecs specs) : AppFrame(specs) {
-		setAppIcon("assets/textures/pacman3.png");	// Window icon
+		setAppIcon("assets/textures/desktop-icon.png");	// Window icon
 
 		pushLayer(NEW GameLayer);
 	}
@@ -29,7 +29,7 @@ public:
 	Returns a new application sandbox defined and executed engine side.
 */
 engine::u_Ptr<engine::AppFrame> engine::createApp() {
-	auto windowSpecs = engine::WindowSpecs("Pacman", 1600, 900);
+	auto windowSpecs = engine::WindowSpecs("Blockbuster", 1600, 900);
 
 	return engine::m_UPtr<PacmanGame>(windowSpecs);
 }

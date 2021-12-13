@@ -6,11 +6,11 @@
 #include <vector>
 #include <random>
 
-#include <pacman/include/logic/collision.h>
-#include "pacman/include/characters/pacman.h"
-#include "pacman/include/characters/ghost.h"
-#include "pacman/include/inanimate-objects/wall.h"
-#include "pacman/include/inanimate-objects/pellet.h"
+#include <blockbuster/include/logic/collision.h>
+#include "blockbuster/include/characters/pacman.h"
+#include "blockbuster/include/characters/ghost.h"
+#include "blockbuster/include/inanimate-objects/wall.h"
+#include "blockbuster/include/inanimate-objects/pellet.h"
 
 //Expected Matrix size
 const int ROWMAX = 28, COLUMNMAX = 36;

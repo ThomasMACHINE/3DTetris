@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/engine.h>
 
-#include "pacman/include/inanimate-objects/map.h"
+#include "blockbuster/include/inanimate-objects/map.h"
 
 class GameLayer : public engine::Layer {
 public:
