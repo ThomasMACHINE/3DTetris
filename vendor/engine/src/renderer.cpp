@@ -252,13 +252,13 @@ namespace engine {
 		Draw quad with a 2D position and color
 	*/
 	void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
-		drawQuad({ position.x, position.y, 0.0f }, size, color);
+		drawQuad({ position.x, position.y, 0.0f }, { size.x, size.y, 0.0f }, color);
 	}
 
 	/*
 		Draw quad with a 3D position, color and custom texture coords
 	*/
-	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color) {
+	void Renderer::drawQuad(const glm::vec3& position, const glm::vec3& size, const glm::vec4& color) {
 		const float texID = 0.f;		// Default texture
 		const float tileCount = 1.f;    // Default tile count
 		
@@ -306,13 +306,13 @@ namespace engine {
 		Draw quad with a 2D position, tilecount and texture
 	*/
 	void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const s_Ptr<Texture>& texture, float tileCount, const glm::vec4& tintColor) {
-		drawQuad({ position.x, position.y, 0.0f }, size, texture, tileCount, tintColor);
+		drawQuad({ position.x, position.y, 0.0f }, { size.x, size.y, 0.f }, texture, tileCount, tintColor);
 	}
 
 	/*
 		Draw textured quad with a 3D position, tilecount
 	*/
-	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const s_Ptr<Texture>& texture, float tileCount, const glm::vec4& tintColor) {
+	void Renderer::drawQuad(const glm::vec3& position, const glm::vec3& size, const s_Ptr<Texture>& texture, float tileCount, const glm::vec4& tintColor) {
 		float texID = 0.f;		// Default texture
 
 		// Send draw call to engine if index count maxed out before continuing
@@ -341,7 +341,7 @@ namespace engine {
 		// using TRS method
 		glm::mat4 transform = 
 			glm::translate(glm::mat4(1.0f), position) *
-			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			glm::scale(glm::mat4(1.0f), { size });
 
 		/*
 		// Iterate and set attributes of quad in vertex buffer
