@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/engine.h>
 #include <blockbuster/include/color.h>
-
+#include <math.h>
 class Box {
 public:
 	Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour);
@@ -18,6 +18,7 @@ public:
 	glm::vec3 getPosition() { return m_Pos; }
 
 	void setColour(glm::vec4 newColour) { m_Colour = newColour; }
+	void setColourOnHeight(int height);
 	glm::vec4 getColour() { return m_Colour; }
 
 private:
@@ -37,6 +38,14 @@ Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour)
 	setColour(colour);
 }
 
+void Box::setColourOnHeight(int height) 
+{
+	//Cos is a periodic function that returns -1,1 with a period of 2pi
+	float r = abs(cos(height)),
+		g = abs(cos(height + 1)),
+		b = abs(cos(height + 2));
+	setColour({ r, g, b, 1.f });
+}
 void Box::transperice() { m_Colour = { m_Colour.x, m_Colour.y, m_Colour.z, m_transparecyLevel }; }
 void Box::solidify() { m_Colour = {m_Colour.x, m_Colour.y, m_Colour.z, 1.f }; }
 void Box::onRender() {

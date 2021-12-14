@@ -123,6 +123,7 @@ void Grid::onUpdate(engine::Time ts)
 		//Set to grid
 		m_GridMatrix[x][y][z] = 1;
 		box->setPosition(nextPos);
+		box->setColourOnHeight(z);
 		box->solidify();
 		//Give player a new activeBlock
 		engine::s_Ptr<Box> newBox = newActiveBox();
