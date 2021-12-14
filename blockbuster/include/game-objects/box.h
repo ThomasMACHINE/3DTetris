@@ -1,3 +1,4 @@
+#pragma once
 #include <engine/engine.h>
 #include <blockbuster/include/color.h>
 
@@ -7,6 +8,8 @@ public:
 
 	void onRender();
 
+	void transperice();
+	void solidify();
 	//Accessor and mutator methods
 	void setSize(glm::vec3 newSize) { m_Size = newSize; }
 	glm::vec3 getSize() { return m_Size; }
@@ -21,6 +24,10 @@ private:
 	glm::vec3 m_Size;
 	glm::vec3 m_Pos;
 	glm::vec4 m_Colour;
+	
+	//CONSTANTS
+	const float m_transparecyLevel = 0.8f;
+
 };
 
 Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour)
@@ -30,6 +37,8 @@ Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour)
 	setColour(colour);
 }
 
+void Box::transperice() { m_Colour = { m_Colour.x, m_Colour.y, m_Colour.z, m_transparecyLevel }; }
+void Box::solidify() { m_Colour = {m_Colour.x, m_Colour.y, m_Colour.z, 1.f }; }
 void Box::onRender() {
 	//engine::Renderer::drawQuad(m_Pos ,m_Size ,m_Colour);
 	engine::Renderer::draw3DObject(m_Pos,
