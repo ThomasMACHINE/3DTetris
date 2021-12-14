@@ -1,6 +1,7 @@
 #pragma once
 #include <engine/engine.h>
 #include <blockbuster/include/game-objects/box.h>
+#include <blockbuster/include/characters/player.h>
 /*
 * The Grid class has the responsibilty to load all the other game objects
 * and dictate the state of the game (e.g. reseting, and setting the state)
@@ -9,8 +10,8 @@
 * can be found in the Wiki.
 */
 const int Height = 11;
-const int Width = 6;
-const int Length = 6;
+const int Width = 7;
+const int Length = 7;
 class Grid
 {
 public:
@@ -32,12 +33,11 @@ private:
 	int m_Height = Height;
 	int	m_Width = Width;
 	int m_Length = Length;
-	int m_GridMatrix[Height][Width][Length];	//3D list that holds all values for the level
+	int m_GridMatrix[Length][Width][Height];	//3D list that holds all values for the level
 
 	//Game-Objects
 	std::vector<engine::s_Ptr<Box>> m_Boxes; //All boxes
-	//engine::s_Ptr<Box>					 //Active Box
-	//engine::s_Ptr<Player>					// Player
+	engine::s_Ptr<Player> m_Player;					// Player
 
 	//Game values
 	bool m_GameOver = false; // State - game is either over or ongoing
@@ -71,20 +71,20 @@ void Grid::load()
 {
 	engine::Renderer::loadShape("./assets/models/wall", "wall");
 	//Load Map
-	for (int z = 0; z < m_Height; z++) {
+	for (int x = 0; x < m_Length; x++) {
 		for (int y = 0; y < m_Width; y++) {
-			for (int x = 0; x < m_Length; x++) {
+			for (int z = 0; z < m_Height; z++) {
 				//If the slot is at the edge of the grid, then place a wall in it
 				if (x == 0 || x == m_Length-1|| y == 0 || y == m_Width-1 || z == 0)
 				{
-					m_GridMatrix[z][y][x] = 1;
+					m_GridMatrix[x][y][z] = 1;
 					m_Boxes.push_back(engine::m_SPtr<Box>(glm::vec3(x- m_Length/2, y- m_Width/2, z-m_Height),
-						glm::vec3(0.49f, 0.49f, 0.49f),
-						glm::vec4(0.69f, 0.39f, 0.19f, 1.f)));
+						glm::vec3(0.485f, 0.485f, 0.485f),
+						glm::vec4(0.1f, 0.69f, 0.19f, 1.f)));
 				}
 				else
 				{
-					m_GridMatrix[z][y][x] = 0;
+					m_GridMatrix[x][y][z] = 0;
 				}
 			}
 		}
