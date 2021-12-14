@@ -28,6 +28,9 @@ public:
 	bool isGameOver() const { return m_GameOver; }
 	void* getMapMatrix() { return m_GridMatrix; }	// Accessor method for the mapMatrix
 	glm::vec3 getDimensions() { return { m_Length, m_Width, m_Height }; }
+
+	//Box generation
+	virtual engine::s_Ptr<Box> newActiveBox();
 private:
 	//Grid values
 	int m_Height = Height;
@@ -37,8 +40,11 @@ private:
 
 	//Game-Objects
 	std::vector<engine::s_Ptr<Box>> m_Boxes; //All boxes
-	engine::s_Ptr<Player> m_Player;					// Player
-
+	engine::s_Ptr<Player> m_Player;			 // Player
+	//Object-Constants
+	glm::vec4 standardColour = { 0.1f, 0.69f, 0.19f, 1.f };
+	glm::vec3 standardSize = { 0.485f, 0.485f, 0.485f };
+	glm::vec3 startPos = { Length / 2, Width / 2 , Height - 1 };
 	//Game values
 	bool m_GameOver = false; // State - game is either over or ongoing
 	int m_Score = 0;         // Score - The score for current game
@@ -62,13 +68,13 @@ Grid::Grid() {
 	glm::vec3 cam = { 0, 0, 0 };
 }
 
-void Grid::onUpdate(engine::Time ts)
-{
-	return;
-}
 
 void Grid::load() 
 {
+	//Instantiate player
+	m_Player = engine::m_SPtr<Player>();
+	m_Player->setActiveBlock(newActiveBox());
+	//LoadBoxes
 	engine::Renderer::loadShape("./assets/models/wall", "wall");
 	//Load Map
 	for (int x = 0; x < m_Length; x++) {
@@ -78,9 +84,9 @@ void Grid::load()
 				if (x == 0 || x == m_Length-1|| y == 0 || y == m_Width-1 || z == 0)
 				{
 					m_GridMatrix[x][y][z] = 1;
-					m_Boxes.push_back(engine::m_SPtr<Box>(glm::vec3(x- m_Length/2, y- m_Width/2, z-m_Height),
+					m_Boxes.push_back(engine::m_SPtr<Box>(glm::vec3(x, y, z),
 						glm::vec3(0.485f, 0.485f, 0.485f),
-						glm::vec4(0.1f, 0.69f, 0.19f, 1.f)));
+						glm::vec4(0.8f, 1.0f, 0.69f, 1.0f)));
 				}
 				else
 				{
@@ -92,11 +98,43 @@ void Grid::load()
 	return;
 }
 //
-//void Grid::onUpdate(engine::Time ts) 
-//{
-//
-//	return;
-//}
+void Grid::onUpdate(engine::Time ts) 
+{
+	m_Player->onUpdate(ts);
+
+	engine::s_Ptr<Box> box = m_Player->getActiveBlock();
+	//Find movementInput and calculate final position
+	glm::vec3 oldPos = m_Player->getActiveBlock()->getPosition();
+	glm::vec3 movement = m_Player->getMovement();
+	//Position
+	glm::vec3 nextPos = oldPos + movement;
+	int x = nextPos.x, 
+		y = nextPos.y, 
+		z = nextPos.z;
+	APP_INFO(nextPos.x);
+	//CollisionTesting - Only solidify if there is a block below
+	if (getOccupied(x,y,z))
+	{
+		box->setPosition(oldPos);
+	}
+	//Check for collision under the box, will not enter if it collided with a wall
+	else if (getOccupied(x,y,z - 1))
+	{
+		//Set to grid
+		m_GridMatrix[x][y][z] = 1;
+		box->setPosition(nextPos);
+		box->solidify();
+		//Give player a new activeBlock
+		engine::s_Ptr<Box> newBox = newActiveBox();
+		m_Player->setActiveBlock(newBox);
+	}
+	else
+	{
+		box->setPosition(nextPos);
+	}
+
+	return;
+}
 
 void Grid::onRender() 
 {
@@ -109,7 +147,7 @@ void Grid::onRender()
 /*
 * Checks if the space is occupied
 */
-bool Grid::getOccupied(int z, int y, int x) 
+bool Grid::getOccupied(int x, int y, int z) 
 {
 	//A block with height 2 might be placed when there is 1 slot left
 	//Simple solution until I can think of a better way to avoid out of index
@@ -124,7 +162,7 @@ bool Grid::getOccupied(int z, int y, int x)
 		APP_INFO("Traveling below the grid..");
 		return true;
 	}
-	int value = m_GridMatrix[z][y][x];
+	int value = m_GridMatrix[x][y][z];
 
 	switch (value) {
 	case 0:
@@ -137,7 +175,20 @@ bool Grid::getOccupied(int z, int y, int x)
 
 	default:
 		APP_INFO("GridMatrix contains values which are not 0 or 1");
+		APP_INFO(value);
 		return false;
 
 	}
+}
+
+engine::s_Ptr<Box> Grid::newActiveBox() 
+{
+	//Create new box
+	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour);
+	//Make box transparent
+	newBox->transperice();
+	//Add to vector
+	m_Boxes.push_back(newBox);
+
+	return newBox;
 }
