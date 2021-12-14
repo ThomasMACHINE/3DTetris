@@ -36,12 +36,12 @@ namespace engine {
 		// Camera flight controls
 		if (m_Flight) {
 			
-			if (Input::isKeyPressed(GLFW_KEY_SPACE)) {
-				m_CameraPosition += glm::normalize(m_Camera.getUp() * m_CameraTranslationSpeed * ts.getSeconds());
-			}
-			else if (Input::isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-				m_CameraPosition -= glm::normalize(m_Camera.getUp() * m_CameraTranslationSpeed * ts.getSeconds());
-			}
+			//if (Input::isKeyPressed(GLFW_KEY_SPACE)) {
+			//	m_CameraPosition += glm::normalize(m_Camera.getUp() * m_CameraTranslationSpeed * ts.getSeconds());
+			//}
+			//else if (Input::isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+			//	m_CameraPosition -= glm::normalize(m_Camera.getUp() * m_CameraTranslationSpeed * ts.getSeconds());
+			//}
 			
 		}
 

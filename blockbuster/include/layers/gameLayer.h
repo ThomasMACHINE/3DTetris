@@ -45,6 +45,10 @@ GameLayer::GameLayer() : engine::Layer(), m_CameraController(1600.0f / 900.0f, 9
 
 	//Set Camera initial position
 	glm::vec3 gridPos = m_Grid->getDimensions();
+	float x = gridPos.x,
+		y = gridPos.y,
+		z = gridPos.z;
+	m_CameraController.setPosition({ x / 2, y / 2, z + 1.2f});
 	//m_CameraController.getCamera().setPosition({ gridPos.x, gridPos.y, gridPos.z+ 10000 });
 	//Initialize the rendering API that is needed for intializing the rendering components
 	engine::u_Ptr<engine::Renderer> s_Renderer = engine::m_UPtr<engine::Renderer>();

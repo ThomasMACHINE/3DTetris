@@ -14,8 +14,9 @@ public:
 	glm::vec3 getMovement() { return m_movement; }
 	void resetMovement() { m_movement = { 0,0,0 }; }
 private:
-	float m_lastUpdate;
-	float m_updateTimer = 0.2f;
+	float m_lastDrop;
+	float m_lastInput;
+	float m_updateTimer = 1.f;
 	float m_inputCooldown = 0.2f;
 	glm::vec3 m_movement;
 	engine::s_Ptr<Box> m_activeBlock;
@@ -28,18 +29,19 @@ Player::Player()
 void Player::onUpdate(engine::Time ts) 
 {
 	//Update time since last update with timestep
-	m_lastUpdate += ts;
+	m_lastDrop += ts;
+	m_lastInput += ts;
 
 	m_movement = { 0,0,0 };
 
-	if (m_lastUpdate > m_updateTimer) 
+	if (m_lastDrop > m_updateTimer) 
 	{
-		m_lastUpdate = 0.f;
+		m_lastDrop = 0.f;
 		m_movement = { 0,0,-1 };
 	}
 	
 	//Set a limit to how often we check for inputs
-	if (m_lastUpdate < m_inputCooldown) 
+	if (m_lastInput < m_inputCooldown)
 	{ 
 		APP_INFO("Stopped multiple input");
 		return;  
@@ -47,26 +49,32 @@ void Player::onUpdate(engine::Time ts)
 	//Upwards
 	if (engine::Input::isKeyPressed(GLFW_KEY_UP)) 
 	{
-		m_lastUpdate = 0.f;
-		m_movement = { 1,0,0 };
+		m_lastInput = 0.f;
+		m_movement = { 0, 1, 0 };
 	}
 	//Downwards
 	if (engine::Input::isKeyPressed(GLFW_KEY_DOWN)) 
 	{
-		m_lastUpdate = 0.f;
-		m_movement = { -1,0,0 };
+		m_lastInput = 0.f;
+		m_movement = { 0, -1, 0 };
 	}
 	//Right
 	if (engine::Input::isKeyPressed(GLFW_KEY_RIGHT)) 
 	{
-		m_lastUpdate = 0.f;
-		m_movement = { 0,-1,0 };
+		m_lastInput = 0.f;
+		m_movement = { 1, 0, 0 };
 	}
 	//Left
 	if (engine::Input::isKeyPressed(GLFW_KEY_LEFT)) 
 	{
-		m_lastUpdate = 0.f;
-		m_movement = { 0,1,0 };
+		m_lastInput = 0.f;
+		m_movement = { -1, 0, 0 };
+	}
+	if (engine::Input::isKeyPressed(GLFW_KEY_SPACE))
+	{
+		m_lastInput = 0.f;
+		m_lastDrop = 0.f;
+		m_movement = { 0, 0, -1 };
 	}
 
 }
