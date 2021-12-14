@@ -28,6 +28,8 @@ namespace engine {
 		float getZoomLevel() const { return m_ZoomLevel; }
 		void setZoomLevel(float level);
 
+		void setPosition(glm::vec3 newPos) { m_CameraPosition = newPos; }
+		glm::vec3 getPosition() { return m_CameraPosition; }
 	private:
 		float m_AspectRatio;								// Aspect ratio to match the window
 		float m_ZoomLevel = 1.0f;							// Camera scaling
