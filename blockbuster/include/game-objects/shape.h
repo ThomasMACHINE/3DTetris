@@ -11,14 +11,17 @@ public:
 	void constructZ();
 	void constructT();
 	void constructL();
-	//Rotation functions
+
+	//xy - plane rotations
 	void rotateRight();
 	void rotateLeft();
 	
-	//Pitch rotations
+	//zx - plane rotations
 	void posPitch();
 	void negPitch();
-
+	//zy - plane rotations
+	void posRoll();
+	void negRoll();
 	//Translation functions 
 	void setApproval(bool approval) {m_approved = approval; }
 	void setOrientation();
@@ -41,7 +44,7 @@ private:
 
 	std::vector<glm::vec3> realPositions;
 	//Timeholder
-	float updateTime = 1.f,
+	float updateTime = 2.f,
 		lastUpdate = 0.f;
 };
 
@@ -57,7 +60,7 @@ void Shape::onUpdate(engine::Time ts)
 	lastUpdate = 0.f;
 	realPositions.clear();
 	
-	negPitch();
+	posRoll();
 	findPositions();
 	int size = realPositions.size();
 
@@ -283,6 +286,60 @@ void Shape::negPitch()
 					break;
 				}
 				m_nextOrientation[j_index][x][j] = m_orientation[x][i][j];
+			}
+		}
+	}
+}
+//Translation list for rolling
+// a11 = a13 a12 = b23 a13 = c33
+// b21 = a12 b22 = b22 b23 = c32
+// c31 = a11 c32 = b21 c33 = c31
+//
+//Example for what needs to happen:
+// b21 -> a12 
+// 221 -> 112
+void Shape::posRoll()
+{
+	int  j_index;
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				switch (j)
+				{
+				case 0:
+					j_index = 2;
+					break;
+				case 1:
+					j_index = 1;
+					break;
+				case 2:
+					j_index = 0;
+					break;
+				}
+				m_nextOrientation[x][i][j] = m_orientation[j_index][i][x];
+			}
+		}
+	}
+}
+void Shape::negRoll()
+{
+	int  j_index;
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				switch (j)
+				{
+				case 0:
+					j_index = 2;
+					break;
+				case 1:
+					j_index = 1;
+					break;
+				case 2:
+					j_index = 0;
+					break;
+				}
+				m_nextOrientation[j_index][i][x] = m_orientation[x][i][j];
 			}
 		}
 	}
