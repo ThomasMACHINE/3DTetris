@@ -26,7 +26,7 @@ public:
 private:
 	int m_orientation[3][3][3];
 	int m_nextOrientation[3][3][3];
-	//Center as
+	//Center as as as as !!
 	int x = 1,
 		y = 1,
 		z = 1;
@@ -62,13 +62,13 @@ void Shape::onUpdate(engine::Time ts)
 	for (auto it : realPositions)
 	{
 		engine::s_Ptr<Box> box = m_Boxes[counter];
-		counter++;
 		box->setVirtualPosition(realPositions[counter]);
 		APP_INFO(counter);
 		APP_INFO(realPositions[counter].x);
 		APP_INFO(realPositions[counter].y);
 		APP_INFO(realPositions[counter].z);
 		APP_INFO("WOA");
+		counter++;
 	}
 }
 void Shape::findPositions() 
@@ -87,16 +87,24 @@ void Shape::findPositions()
 					//Vector math, m_center is the real center (translated to 0,0,0), but has position 2,2,2
 					// ==> m_center - m_center = 0,0,0, for something in [1,1,1] - [2,2,2] = [-1,-1,-1]
 					//So any other positions needs to be displaced by m_center
-					glm::vec3 matrixPos = { x, i, j};
-					glm::vec3 position = matrixPos - m_center;
+					//glm::vec3 matrixPos = { x, i, j};
+					//glm::vec3 position;
+					//position = { matrixPos.x - m_center.x,
+					//			 matrixPos.y - m_center.y, 
+					//			matrixPos.z - m_center.z };
 
 					//Avoiding errors in floating point operations
-					if (x == 1 && i == 1 && j == 1) {
-						position = { 0,0,0 };
-					}
+					//if (x == 1 && i == 1 && j == 1) {
+					//	position = { 0,0,0 };
+					//}
+					
 					//To translate it into real world, add vector to realWorld
-					glm::vec3 toRealWorld = realWorldCoordinate + position;
-					realPositions.push_back(toRealWorld);
+					//glm::vec3 toRealWorld = realWorldCoordinate + position;
+					
+					int xPos = x - m_center.x + realWorldCoordinate.x,
+						yPos = i - m_center.y + realWorldCoordinate.y,
+						zPos = j - m_center.z + realWorldCoordinate.z;
+					realPositions.push_back({ xPos,yPos,zPos });
 				}
 			}
 		}
