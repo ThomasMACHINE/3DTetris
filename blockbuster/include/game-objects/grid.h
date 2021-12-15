@@ -143,7 +143,6 @@ void Grid::onUpdate(engine::Time ts)
  			if (getOccupied(it.x, it.y, it.z - 1) == true) 
 			{ 
 				collisionUnder = true; 
-				APP_INFO("DEBUGLINE");
 			}
 		}
 		if (collisionUnder == true)

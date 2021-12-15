@@ -88,21 +88,27 @@ void Shape::onUpdate(engine::Time ts, int signal)
 		nextToCurrent();
 		break;
 	case 6:
+		newCoordinate = realWorldCoordinate;
 		rotateRight();
 		break;
 	case 7:
+		newCoordinate = realWorldCoordinate;
 		rotateLeft();
 		break;
 	case 8:
+		newCoordinate = realWorldCoordinate;
 		posRoll();
 		break;
 	case 9:
+		newCoordinate = realWorldCoordinate;
 		negRoll();
 		break;
 	case 10:
+		newCoordinate = realWorldCoordinate;
 		posPitch();
 		break;
 	case 11:
+		newCoordinate = realWorldCoordinate;
 		negPitch();
 		break;
 	}
@@ -140,9 +146,9 @@ void Shape::findPositions()
 					//To translate it into real world, add vector to realWorld
 					//glm::vec3 toRealWorld = realWorldCoordinate + position;
 					
-					int xPos = i - m_center.x + realWorldCoordinate.x,
-						yPos = j - m_center.y + realWorldCoordinate.y,
-						zPos = x - m_center.x + realWorldCoordinate.z;
+					int xPos = i - m_center.x + newCoordinate.x,
+						yPos = j - m_center.y + newCoordinate.y,
+						zPos = x - m_center.x + newCoordinate.z;
 
 					//
 					realPositions.push_back({ xPos,yPos,zPos });
@@ -423,6 +429,7 @@ void Shape::submitPositions()
 void Shape::revertPositions()
 {
 	newCoordinate = realWorldCoordinate;
+
 	for (int x = 0; x < 3; x++) {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
