@@ -57,7 +57,7 @@ void Shape::onUpdate(engine::Time ts)
 	lastUpdate = 0.f;
 	realPositions.clear();
 	
-	rotateRight();
+	negPitch();
 	findPositions();
 	int size = realPositions.size();
 
@@ -259,6 +259,30 @@ void Shape::posPitch()
 					break;
 				}
 				m_nextOrientation[x][i][j] = m_orientation[j_index][x][j];
+			}
+		}
+	}
+}
+//Like with left and right rotation, we just swap the indecies on m_nextOrientation and m_orientation for the rotation
+void Shape::negPitch()
+{
+	int  j_index;
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				switch (i)
+				{
+				case 0:
+					j_index = 2;
+					break;
+				case 1:
+					j_index = 1;
+					break;
+				case 2:
+					j_index = 0;
+					break;
+				}
+				m_nextOrientation[j_index][x][j] = m_orientation[x][i][j];
 			}
 		}
 	}
