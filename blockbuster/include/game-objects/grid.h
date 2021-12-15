@@ -81,7 +81,7 @@ void Grid::load()
 	m_Player->setActiveBlock(newActiveBox());
 	//Instantiate Shape
 	m_Shape = engine::m_SPtr<Shape>();
-	m_Shape->constructZ();
+	m_Shape->constructL();
 	std::vector<engine::s_Ptr<Box>> boxList;
 	auto boxes = m_Shape->getBoxes();
 	for (auto it : boxes)

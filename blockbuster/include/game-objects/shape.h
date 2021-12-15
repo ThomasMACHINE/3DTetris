@@ -9,6 +9,8 @@ public:
 	void onUpdate(engine::Time ts);
 	//construction for shapes
 	void constructZ();
+	void constructT();
+	void constructL();
 	//Rotation functions
 	void rotateRight();
 	void rotateLeft();
@@ -65,11 +67,6 @@ void Shape::onUpdate(engine::Time ts)
 		engine::s_Ptr<Box> box = m_Boxes[counter];
 		box->setVirtualPosition(realPositions[counter]);
 		setOrientation();
-		APP_INFO(counter);
-		APP_INFO(realPositions[counter].x);
-		APP_INFO(realPositions[counter].y);
-		APP_INFO(realPositions[counter].z);
-		APP_INFO("WOA");
 		counter++;
 	}
 }
@@ -136,7 +133,50 @@ void Shape::constructZ()
 		m_Boxes.push_back(box);
 	};
 }
-
+void Shape::constructT()
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				m_orientation[x][i][j] = 0;
+			}
+		}
+	}
+	//Setting second matrix to look like this
+	m_orientation[1][0][1] = 1;								//[0, 1, 0]
+	m_orientation[1][1][1] = 1; m_orientation[1][1][2] = 1;	//[1, 1, 1]
+	m_orientation[1][1][0] = 1;								//[0, 0, 0]
+	//Now need to push back the objects
+	for (int i = 0; i < 4; i++) {
+		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
+			glm::vec3(0.485f, 0.485f, 0.485f),
+			glm::vec4(0.19f, 0.69f, 0.95f, 1.f));
+		box->transperice();
+		m_Boxes.push_back(box);
+	};
+}
+void Shape::constructL()
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				m_orientation[x][i][j] = 0;
+			}
+		}
+	}
+	//Setting second matrix to look like this
+	m_orientation[1][0][1] = 1;									//[0, 1, 0]
+	m_orientation[1][1][1] = 1; 								//[0, 1, 0]
+	m_orientation[1][2][1] = 1;	m_orientation[1][2][2] = 1;		//[0, 1, 1]
+	//Now need to push back the objects
+	for (int i = 0; i < 4; i++) {
+		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
+			glm::vec3(0.485f, 0.485f, 0.485f),
+			glm::vec4(0.19f, 0.69f, 0.95f, 1.f));
+		box->transperice();
+		m_Boxes.push_back(box);
+	};
+}
 /*
 * Angle shifting each element
 * [1, 0, 0]    [0, 1, 1]    [0, 1, 0]
@@ -218,7 +258,7 @@ void Shape::posPitch()
 					j_index = 0;
 					break;
 				}
-				m_nextOrientation[x][i][j] = m_orientation[j_index][j][x];
+				m_nextOrientation[x][i][j] = m_orientation[j_index][x][j];
 			}
 		}
 	}
