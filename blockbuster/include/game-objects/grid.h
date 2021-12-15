@@ -135,27 +135,30 @@ void Grid::onUpdate(engine::Time ts)
 	}
 	else { 
 		m_Shape->submitPositions(); 
-	}
-	//Check for collision under the box
-	bool collisionUnder = false;
-	for (auto &it : positions)
-	{
- 		if (getOccupied(it.z, it.y, it.z - 1) == true) 
-		{ 
-			collisionUnder = true; 
-			APP_INFO("DEBUGLINE");
-		}
-	}
-	if(collisionUnder == true)
-	{
-		auto boxList = m_Shape->getBoxes();
-		for (auto &it : boxList)
+	
+		//Check for collision under the box
+		bool collisionUnder = false;
+		for (auto &it : positions)
 		{
-			it->solidify();
-			it->setColourOnHeight(it->getVirtualPosition().z);
+ 			if (getOccupied(it.x, it.y, it.z - 1) == true) 
+			{ 
+				collisionUnder = true; 
+				APP_INFO("DEBUGLINE");
+			}
 		}
-		m_Shape->clearBoxes();
-		newActiveBox();
+		if (collisionUnder == true)
+		{
+			auto boxList = m_Shape->getBoxes();
+			for (auto& it : boxList)
+			{
+				glm::vec3 colPol = it->getVirtualPosition();
+				it->solidify();
+				it->setColourOnHeight(colPol.z);
+				m_GridMatrix[int(colPol.x)][int(colPol.y)][int(colPol.z)] = 1; // Should be int values anyways so casting probably wont do weird stuff
+			}
+			m_Shape->clearBoxes();
+			newActiveBox();
+		}
 	}
 	for (auto it : m_Boxes)
 	{
@@ -202,12 +205,15 @@ bool Grid::getOccupied(int x, int y, int z)
 		break;
 
 	case 1:
+
 		return true;
 		break;
 
 	default:
 		APP_INFO("GridMatrix contains values which are not 0 or 1");
-		APP_INFO(value);
+		APP_INFO(x);
+		APP_INFO(y);
+		APP_INFO(z);
 		return false;
 
 	}
