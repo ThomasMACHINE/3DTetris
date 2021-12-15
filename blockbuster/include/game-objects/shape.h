@@ -19,6 +19,7 @@ public:
 
 	//Translation functions 
 	void setApproval(bool approval) {m_approved = approval; }
+	void setOrientation();
 	void findPositions();
 	std::vector<engine::s_Ptr<glm::vec3>> getPositions();
 	//Mutator and accessor methods
@@ -63,6 +64,7 @@ void Shape::onUpdate(engine::Time ts)
 	{
 		engine::s_Ptr<Box> box = m_Boxes[counter];
 		box->setVirtualPosition(realPositions[counter]);
+		setOrientation();
 		APP_INFO(counter);
 		APP_INFO(realPositions[counter].x);
 		APP_INFO(realPositions[counter].y);
@@ -101,9 +103,11 @@ void Shape::findPositions()
 					//To translate it into real world, add vector to realWorld
 					//glm::vec3 toRealWorld = realWorldCoordinate + position;
 					
-					int xPos = x - m_center.x + realWorldCoordinate.x,
-						yPos = i - m_center.y + realWorldCoordinate.y,
-						zPos = j - m_center.z + realWorldCoordinate.z;
+					int xPos = i - m_center.x + realWorldCoordinate.x,
+						yPos = j - m_center.y + realWorldCoordinate.y,
+						zPos = x - m_center.x + realWorldCoordinate.z;
+
+					//
 					realPositions.push_back({ xPos,yPos,zPos });
 				}
 			}
@@ -220,3 +224,15 @@ void Shape::posPitch()
 	}
 }
 
+//This function does the equivalent to :  m_orientation = m_nextOrientation
+void Shape::setOrientation()
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+			
+				m_orientation[x][i][j] = m_nextOrientation[x][i][j];
+			}
+		}
+	}
+}
