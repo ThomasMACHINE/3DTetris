@@ -2,6 +2,7 @@
 #include <engine/engine.h>
 #include <blockbuster/include/game-objects/box.h>
 #include <blockbuster/include/characters/player.h>
+#include <blockbuster/include/game-objects/shape.h>
 /*
 * The Grid class has the responsibilty to load all the other game objects
 * and dictate the state of the game (e.g. reseting, and setting the state)
@@ -42,6 +43,7 @@ private:
 	std::vector<engine::s_Ptr<Box>> m_walls; //All walls
 	std::vector<engine::s_Ptr<Box>> m_Boxes; //All playing boxes
 	engine::s_Ptr<Player> m_Player;			 // Player
+	engine::s_Ptr<Shape> m_Shape;
 	//Object-Constants
 	glm::vec4 standardColour = { 0.1f, 0.69f, 0.19f, 1.f };
 	glm::vec3 standardSize = { 0.485f, 0.485f, 0.485f };
@@ -63,7 +65,7 @@ Grid::Grid() {
 
 	// Get the shader
 	s_ShaderLibrary = engine::Renderer::getShaderLibrary();
-
+	
 	// Setup view with camera
 	auto& window = engine::AppFrame::get().getWindow();	
 
@@ -77,6 +79,15 @@ void Grid::load()
 	//Instantiate player
 	m_Player = engine::m_SPtr<Player>();
 	m_Player->setActiveBlock(newActiveBox());
+	//Instantiate Shape
+	m_Shape = engine::m_SPtr<Shape>();
+	m_Shape->constructZ();
+	std::vector<engine::s_Ptr<Box>> boxList;
+	auto boxes = m_Shape->getBoxes();
+	for (auto it : boxes)
+	{
+		m_Boxes.push_back(it);
+	}
 	//LoadBoxes
 	engine::Renderer::loadShape("./assets/models/box", "box");
 	//Load Map
@@ -89,10 +100,8 @@ void Grid::load()
 					m_GridMatrix[x][y][z] = 1;
 					m_walls.push_back(engine::m_SPtr<Box>(glm::vec3(x, y, z),
 						glm::vec3(0.485f, 0.485f, 0.485f),
-						glm::vec4(0.8f, 1.0f, 0.69f, 1.0f),
-						m_boxTexture
-						)
-						);
+						glm::vec4(0.8f, 1.0f, 0.69f, 1.0f)
+						));
 				}
 				else
 				{
@@ -106,6 +115,8 @@ void Grid::load()
 //
 void Grid::onUpdate(engine::Time ts) 
 {
+	m_Shape->onUpdate(ts);
+
 	for (auto it : m_Boxes)
 	{
 		it->onUpdate(ts);
@@ -198,7 +209,7 @@ bool Grid::getOccupied(int x, int y, int z)
 engine::s_Ptr<Box> Grid::newActiveBox() 
 {
 	//Create new box
-	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour, m_boxTexture);
+	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour);
 	//Make box transparent
 	newBox->transperice();
 	//Add to vector

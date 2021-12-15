@@ -1,44 +1,131 @@
 #pragma once
 #include <engine/engine.h>
+#include <blockbuster/include/game-objects/box.h>
 #include <math.h>
 class Shape {
 public:
 	Shape();
 
-
+	void onUpdate(engine::Time ts);
+	//construction for shapes
+	void constructZ();
 	//Rotation functions
 	void rotateRight();
 	void rotateLeft();
-private:
-	int[3][3][3] m_orientation;
+	
+	//Pitch rotations
+	void posPitch();
+	void negPitch();
 
-	int[3][3][3] m_nextOrientation;
+	//Translation functions 
+	void setApproval(bool approval) {m_approved = approval; }
+	void findPositions();
+	std::vector<engine::s_Ptr<glm::vec3>> getPositions();
+	//Mutator and accessor methods
+	std::vector<engine::s_Ptr<Box>> getBoxes() { return m_Boxes; }
+private:
+	int m_orientation[3][3][3];
+	int m_nextOrientation[3][3][3];
+	//Center as
+	int x = 1,
+		y = 1,
+		z = 1;
+	glm::vec3 m_center = { x,y,z };
 	std::vector<engine::s_Ptr<Box>> m_Boxes;
+	bool m_approved;
+	//Translation variables
+	glm::vec3 realWorldCoordinate = { 3,3,11 };
+
+	std::vector<glm::vec3> realPositions;
+	//Timeholder
+	float updateTime = 1.f,
+		lastUpdate = 0.f;
 };
+
+Shape::Shape() {}
+
+
+void Shape::onUpdate(engine::Time ts)
+{
+	lastUpdate += ts;
+	
+	if (lastUpdate < updateTime) { return; }
+
+	lastUpdate = 0.f;
+	realPositions.clear();
+	
+	rotateRight();
+	findPositions();
+	int size = realPositions.size();
+
+	int counter = 0;
+	for (auto it : realPositions)
+	{
+		engine::s_Ptr<Box> box = m_Boxes[counter];
+		counter++;
+		box->setVirtualPosition(realPositions[counter]);
+		APP_INFO(counter);
+		APP_INFO(realPositions[counter].x);
+		APP_INFO(realPositions[counter].y);
+		APP_INFO(realPositions[counter].z);
+		APP_INFO("WOA");
+	}
+}
+void Shape::findPositions() 
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+
+				int value = m_nextOrientation[x][i][j];
+
+				switch (value) 
+				{
+				case 0:
+					break;
+				case 1:
+					//Vector math, m_center is the real center (translated to 0,0,0), but has position 2,2,2
+					// ==> m_center - m_center = 0,0,0, for something in [1,1,1] - [2,2,2] = [-1,-1,-1]
+					//So any other positions needs to be displaced by m_center
+					glm::vec3 matrixPos = { x, i, j};
+					glm::vec3 position = matrixPos - m_center;
+
+					//Avoiding errors in floating point operations
+					if (x == 1 && i == 1 && j == 1) {
+						position = { 0,0,0 };
+					}
+					//To translate it into real world, add vector to realWorld
+					glm::vec3 toRealWorld = realWorldCoordinate + position;
+					realPositions.push_back(toRealWorld);
+				}
+			}
+		}
+	}
+}
+void Shape::constructZ()
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				m_orientation[x][i][j] = 0;
+			}
+		}
+	}
+															//Setting second matrix to look like this
+	m_orientation[1][0][1] = 1;								//[0, 1, 0]
+	m_orientation[1][1][1] = 1; m_orientation[1][1][2] = 1;	//[0, 1, 1]
+	m_orientation[1][2][2] = 1;								//[0, 0, 1]
+	//Now need to push back the objects
+	for (int i = 0; i < 4; i++) {
+		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
+												glm::vec3(0.485f, 0.485f, 0.485f),
+												glm::vec4(0.19f, 0.69f, 0.95f, 1.f) );
+		box->transperice();
+		m_Boxes.push_back(box);
+	};
+}
+
 /*
-* All 1`s apart from the centre is rotated 45 degrees
-* 
-*  [1, 0, 0] RotateRight [0, 1, 1] RotateRight [0, 1, 0]    
-*  [1, 1, 0]     ==>	 [1, 1, 0]	  ====>    [0, 1, 1]
-*  [0, 1, 0]			 [0, 0, 0]			   [0, 0, 1]
-* 
-* Substitute each row with column -- c1 = r1^T, c2 = r2^T, c3 = r3^T
-* [0, 0, 1]    [0, 0, 0]     [0, 0, 1]    [0, 0, 0]
-* [0, 1, 1] -> [0, 1, 1] ->	 [0, 1, 1] -> [0, 1, 1]
-* [0, 1, 0]	   [1, 1, 0]	 [0, 1, 0]	  [1, 1, 0]
-* 
-* Substitute each column with row -- r1 = c1^T ...
-* [0, 0, 1]     [0, 0, 0]
-* [0, 1, 1] -->	[0, 1, 1]  
-* [0, 1, 0]		[1, 1, 0]
-* 
-* Both methods are equal, 
-* 
-* For the T letter
-* [1, 1, 1]     [1, 0, 0]    [1, 1, 1]
-* [0, 1, 0] ->	[1, 1, 1] -> [0, 1, 0]
-* [0, 1, 0]		[1, 0, 0]	 [0, 1, 0]
-* 
 * Angle shifting each element
 * [1, 0, 0]    [0, 1, 1]    [0, 1, 0]
 * [1, 1, 0] -> [1, 1, 0] -> [0, 1, 1]
@@ -55,9 +142,9 @@ private:
 void Shape::rotateRight() 
 {
 	int  j_index;
-	for (x = 0; x < 3; x++) {
-		for (i = 0; i < 3; i++) {
-			for (j = 0; j < 3; j++) {
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
 				switch (i) 
 				{
 				case 0:
@@ -70,7 +157,7 @@ void Shape::rotateRight()
 					j_index = 0;
 					break;
 				}
-				m_nextOrientation[x][i][j] = m_Orientation[x][j][j_index]
+				m_nextOrientation[x][i][j] = m_orientation[x][j][j_index];
 			}
 		}
 	}
@@ -79,9 +166,9 @@ void Shape::rotateRight()
 void Shape::rotateLeft()
 {
 	int  j_index;
-	for (x = 0; x < 3; x++) {
-		for (i = 0; i < 3; i++) {
-			for (j = 0; j < 3; j++) {
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
 				switch (i)
 				{
 				case 0:
@@ -94,7 +181,32 @@ void Shape::rotateLeft()
 					j_index = 0;
 					break;
 				}
-				m_nextOrientation[x][j][j_index] = m_Orientation[x][i][j]
+				m_nextOrientation[x][j][j_index] = m_orientation[x][i][j];
+			}
+		}
+	}
+}
+//For Pitching we can do the same. Instead of operating on each matrix
+//We slice each matrix at their first column to form a new matrix
+void Shape::posPitch()
+{
+	int  j_index;
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				switch (i)
+				{
+				case 0:
+					j_index = 2;
+					break;
+				case 1:
+					j_index = 1;
+					break;
+				case 2:
+					j_index = 0;
+					break;
+				}
+				m_nextOrientation[x][i][j] = m_orientation[j_index][j][x];
 			}
 		}
 	}

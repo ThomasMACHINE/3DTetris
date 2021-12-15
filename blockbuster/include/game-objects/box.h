@@ -6,7 +6,7 @@
 
 class Box {
 public:
-	Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour, engine::s_Ptr<engine::Texture> texture	);
+	Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour);
 	//Render specific
 	void onRender();
 	//
@@ -48,15 +48,12 @@ private:
 
 };
 
-Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour, engine::s_Ptr<engine::Texture> texture)
+Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour)
 {
 	setSize(size);
 	setVirtualPosition(pos);
 	setPosition(pos);
 	setColour(colour);
-	m_texture = texture;
-	APP_INFO(m_texture->getID());
-	//m_texture2 = engine::m_SPtr<engine::Texture>("assets/textures/boxtexture.png");
 }
 
 void Box::onUpdate(engine::Time ts)
