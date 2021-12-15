@@ -1,41 +1,83 @@
 #pragma once
 #include <engine/engine.h>
 #include <blockbuster/include/color.h>
+#include <blockbuster/include/logic/interpolation.h>
 #include <math.h>
+
 class Box {
 public:
-	Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour);
-
+	Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour, engine::s_Ptr<engine::Texture> texture	);
+	//Render specific
 	void onRender();
-
+	//
+	void onUpdate(engine::Time ts);
+	//alpha value changing functions
 	void transperice();
 	void solidify();
 	//Accessor and mutator methods
 	void setSize(glm::vec3 newSize) { m_Size = newSize; }
 	glm::vec3 getSize() { return m_Size; }
 
-	void setPosition(glm::vec3 newPosition) { m_Pos = newPosition; }
-	glm::vec3 getPosition() { return m_Pos; }
+	void setVirtualPosition(glm::vec3 newPosition) { m_VirtualPosition = newPosition; }
+	glm::vec3 getVirtualPosition() { return m_VirtualPosition; }
 
+	void setPosition(glm::vec3 newPosition) { m_Pos = newPosition; }
+	
 	void setColour(glm::vec4 newColour) { m_Colour = newColour; }
 	void setColourOnHeight(int height);
 	glm::vec4 getColour() { return m_Colour; }
 
 private:
+	//Visual parameters
 	glm::vec3 m_Size;
 	glm::vec3 m_Pos;
+	glm::vec3 m_VirtualPosition;
 	glm::vec4 m_Colour;
-	
+	//TimeTracking
+	float m_time;
+	//Texture
+	engine::s_Ptr<engine::Texture> m_texture;
+	//Interpolation specific 
+	engine::s_Ptr<Interpolation> m_interpolator;
+	bool moving = false;
+	glm::vec3 startPos;
+	float travelTime = 0.6f,
+		startTime = 0.f;
 	//CONSTANTS
 	const float m_transparecyLevel = 0.8f;
 
 };
 
-Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour)
+Box::Box(glm::vec3 pos, glm::vec3 size, glm::vec4 colour, engine::s_Ptr<engine::Texture> texture)
 {
 	setSize(size);
+	setVirtualPosition(pos);
 	setPosition(pos);
 	setColour(colour);
+	m_texture = texture;
+	APP_INFO(m_texture->getID());
+	//m_texture2 = engine::m_SPtr<engine::Texture>("assets/textures/boxtexture.png");
+}
+
+void Box::onUpdate(engine::Time ts)
+{
+	m_time += ts;
+	//If currently moving, move 
+	if (moving == true) 
+	{ 
+		m_Pos = m_interpolator->linear(startPos, m_VirtualPosition, startTime, startTime+travelTime, m_time); 
+		//If pos is equal to the virtual position, the movement is complete
+		if (m_Pos == m_VirtualPosition) { moving = false; }
+		return; //Nothing more should be done 
+	}
+	//If the virtual and real position are not the same, start moving
+	if(m_VirtualPosition != m_Pos) 
+	{
+		//Set all intial values for interpolation on the next frame
+		moving = true;
+		startTime = m_time;
+		startPos = m_Pos;
+	}
 }
 
 void Box::setColourOnHeight(int height) 
@@ -54,6 +96,7 @@ void Box::onRender() {
 		{ m_Size },
 		{ 0, 0, 0 },
 		m_Colour,
-		"./assets/models/wall",
-		"wall");
+		"./assets/models/box", 
+		"box"
+		);
 }

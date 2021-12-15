@@ -39,7 +39,8 @@ private:
 	int m_GridMatrix[Length][Width][Height];	//3D list that holds all values for the level
 
 	//Game-Objects
-	std::vector<engine::s_Ptr<Box>> m_Boxes; //All boxes
+	std::vector<engine::s_Ptr<Box>> m_walls; //All walls
+	std::vector<engine::s_Ptr<Box>> m_Boxes; //All playing boxes
 	engine::s_Ptr<Player> m_Player;			 // Player
 	//Object-Constants
 	glm::vec4 standardColour = { 0.1f, 0.69f, 0.19f, 1.f };
@@ -48,6 +49,8 @@ private:
 	//Game values
 	bool m_GameOver = false; // State - game is either over or ongoing
 	int m_Score = 0;         // Score - The score for current game
+	//Game Texture 
+	engine::s_Ptr<engine::Texture> m_boxTexture = engine::m_SPtr<engine::Texture>("assets/textures/box2.jpg");
 	//Shader
 	engine::ObjectLibrary* s_ObjectLibrary;
 	engine::ShaderLibrary* s_ShaderLibrary;
@@ -75,7 +78,7 @@ void Grid::load()
 	m_Player = engine::m_SPtr<Player>();
 	m_Player->setActiveBlock(newActiveBox());
 	//LoadBoxes
-	engine::Renderer::loadShape("./assets/models/wall", "wall");
+	engine::Renderer::loadShape("./assets/models/box", "box");
 	//Load Map
 	for (int x = 0; x < m_Length; x++) {
 		for (int y = 0; y < m_Width; y++) {
@@ -84,9 +87,12 @@ void Grid::load()
 				if (x == 0 || x == m_Length-1|| y == 0 || y == m_Width-1 || z == 0)
 				{
 					m_GridMatrix[x][y][z] = 1;
-					m_Boxes.push_back(engine::m_SPtr<Box>(glm::vec3(x, y, z),
+					m_walls.push_back(engine::m_SPtr<Box>(glm::vec3(x, y, z),
 						glm::vec3(0.485f, 0.485f, 0.485f),
-						glm::vec4(0.8f, 1.0f, 0.69f, 1.0f)));
+						glm::vec4(0.8f, 1.0f, 0.69f, 1.0f),
+						m_boxTexture
+						)
+						);
 				}
 				else
 				{
@@ -100,29 +106,32 @@ void Grid::load()
 //
 void Grid::onUpdate(engine::Time ts) 
 {
+	for (auto it : m_Boxes)
+	{
+		it->onUpdate(ts);
+	}
 	m_Player->onUpdate(ts);
 
 	engine::s_Ptr<Box> box = m_Player->getActiveBlock();
 	//Find movementInput and calculate final position
-	glm::vec3 oldPos = m_Player->getActiveBlock()->getPosition();
+	glm::vec3 oldPos = m_Player->getActiveBlock()->getVirtualPosition();
 	glm::vec3 movement = m_Player->getMovement();
 	//Position
 	glm::vec3 nextPos = oldPos + movement;
 	int x = nextPos.x, 
 		y = nextPos.y, 
 		z = nextPos.z;
-	APP_INFO(nextPos.x);
 	//CollisionTesting - Only solidify if there is a block below
 	if (getOccupied(x,y,z))
 	{
-		box->setPosition(oldPos);
+		box->setVirtualPosition(oldPos);
 	}
 	//Check for collision under the box, will not enter if it collided with a wall
 	else if (getOccupied(x,y,z - 1))
 	{
 		//Set to grid
 		m_GridMatrix[x][y][z] = 1;
-		box->setPosition(nextPos);
+		box->setVirtualPosition(nextPos);
 		box->setColourOnHeight(z);
 		box->solidify();
 		//Give player a new activeBlock
@@ -131,7 +140,7 @@ void Grid::onUpdate(engine::Time ts)
 	}
 	else
 	{
-		box->setPosition(nextPos);
+		box->setVirtualPosition(nextPos);
 	}
 
 	return;
@@ -139,6 +148,10 @@ void Grid::onUpdate(engine::Time ts)
 
 void Grid::onRender() 
 {
+	for (auto& it : m_walls)
+	{
+		it->onRender();
+	}
 	for (auto &it : m_Boxes)
 	{
 		it->onRender();
@@ -185,7 +198,7 @@ bool Grid::getOccupied(int x, int y, int z)
 engine::s_Ptr<Box> Grid::newActiveBox() 
 {
 	//Create new box
-	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour);
+	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour, m_boxTexture);
 	//Make box transparent
 	newBox->transperice();
 	//Add to vector

@@ -120,6 +120,7 @@ Medium for storing vertex data before processing
 		static void drawCircle(const glm::vec3& position, const glm::vec2& size, const s_Ptr<Texture>& texture);
 
 		static void draw3DObject(const glm::vec3& position, const glm::vec3& size, const glm::vec3& rotation, const glm::vec4& color, const std::string path, const std::string objectName);
+		static void draw3DObject(const glm::vec3& position, const glm::vec3& size, const glm::vec3& rotation, const glm::vec4& color, const std::string path, const std::string objectName, const s_Ptr<Texture>& texture);
 	private:
 		static s_Ptr<RenderAPI> s_RenderAPI;
 		static engine::ObjectLibrary* s_ObjectLibrary;

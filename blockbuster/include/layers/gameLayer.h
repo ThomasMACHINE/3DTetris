@@ -60,6 +60,7 @@ GameLayer::GameLayer() : engine::Layer(), m_CameraController(1600.0f / 900.0f, 9
 	glCullFace(GL_BACK);
 
 	// Turn on blending for OpenGL
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 

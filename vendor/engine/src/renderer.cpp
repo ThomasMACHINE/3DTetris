@@ -191,7 +191,7 @@ namespace engine {
 		s_3DData.vertexCount = 0;
 
 		s_3DData.polyVertexBuffer.reset();
-		s_3DData.polyIndexBuffer.reset();
+ 		s_3DData.polyIndexBuffer.reset();
 		s_3DData.polyVertexArray.reset();
 
 		// clean VAO
@@ -557,77 +557,16 @@ namespace engine {
 		}
 	}
 	
-	/*
-		Draw textured circle with a 3D position, size, rotation, tint color and quality of circle
-		quality in this case is how many times to repeat quads, at some point
-		the quality does not change and so a default of 100 repeats is used.
-	*/
 	void Renderer::draw3DObject(const glm::vec3& position, const glm::vec3& size, const glm::vec3& rotation, const glm::vec4& color, const std::string path, const std::string objectName) {
-		const float texID = 0.f;										// Default texture
-		
-		// Transform vertices to position then spread vertices to each polygon corner
-		// using TRS method
-		/*
-		glm::mat4 transform = glm::mat4(1.0f);
-		transform = glm::translate(transform, position);
-		transform = glm::rotate(transform, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));	// Rotation x-axis
-		transform = glm::rotate(transform, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));	// Rotation y-axis
-		transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));	// Rotation z-axis
-		transform = glm::scale(transform, size);												// Scaling
-
-		glm::vec4 posTRS = glm::vec4(position, 1.f) * transform;
-		*/
-		//loadModel(path, objectName, s_3DData.vertices, {posTRS.x, posTRS.y, posTRS.z}, color, texID);
+		const float texID = 0.f;// Default texture
 		loadModel(path, objectName, s_3DData.vertices, position, size, rotation, color, texID);
 
-		/*
-		MeshStore meshStore = s_ObjectLibrary->get(objectName);						// get base object mesh for transformation and queue
-		std::vector<s_Ptr<Mesh>> meshes = meshStore.buildMeshes();
-		std::vector<PolyVertex> vertices;
-		std::vector<unsigned int> indices;
-
-		// Transform vertices to position then spread vertices to each polygon corner
-		// using TRS method
-		glm::mat4 transform =
-			glm::translate(glm::mat4(1.0f), position) *											// Translation
-			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f)) *	// Rotation x-axis
-			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f)) *	// Rotation y-axis
-			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f)) *	// Rotation z-axis
-			glm::scale(glm::mat4(1.0f), size);													// Scaling
-
-		if (s_3DData.verticesMap.find(objectName) == s_3DData.verticesMap.end()) {	// New object type gets own vertices
-			s_3DData.verticesMap.insert({ objectName, vertices });
-			s_3DData.indicesMap.insert({ objectName, indices });
-		}
-
-		for (int mesh = 0; mesh < meshes.size(); mesh++) {
-			//if (!meshes[mesh]) continue;	// skip to next if empty mesh
-
-			int vertexSize = 0;		// Determine each vertex size based on attributes
-			vertexSize += 3;		// Color applied by default
-			if (meshes[mesh]->m_Positions.size() != 0)  vertexSize += 3;
-			if (meshes[mesh]->m_Normals.size() != 0) vertexSize += 3;
-			if (meshes[mesh]->m_TexCoords.size() != 0) vertexSize += 2;
-
-			for (int i = 0; i < meshes[mesh]->getVertexCount(); i++) {
-				PolyVertex vertex = PolyVertex();
-				glm::vec3 pos = meshes[mesh]->m_Positions[i];	// for shorter alias
-				//vertex.position = glm::vec4(pos.x, pos.y, pos.z, 1.0f) * transform;
-				vertex.position = pos + position;
-				vertex.normal = meshes[mesh]->m_Normals[i];
-				vertex.texCoord = meshes[mesh]->m_TexCoords[i];
-				vertex.color = color;
-				vertex.texID = texID;
-				s_3DData.verticesMap[objectName].push_back(vertex);
-				//s_3DData.vertices.push_back(vertex);
-			}
-
-			// Append each index stored in each mesh to global indices count for batch rendering
-			s_3DData.indicesMap[objectName].insert(s_3DData.indicesMap[objectName].end(), meshes[mesh]->m_RawIndexBuffer.begin(), meshes[mesh]->m_RawIndexBuffer.end());
-			//s_3DData.indices.insert(s_3DData.indices.end(), meshes[mesh]->m_RawIndexBuffer.begin(), meshes[mesh]->m_RawIndexBuffer.end());
-		
-		}
-		*/
+	}
+	//Draw 3D object with texture
+	void Renderer::draw3DObject(const glm::vec3& position, const glm::vec3& size, const glm::vec3& rotation, const glm::vec4& color, const std::string path, const std::string objectName, const s_Ptr<Texture>& texture)
+	{
+		float texID = texture->getID();
+		loadModel(path, objectName, s_3DData.vertices, position, size, rotation, color, texID);
 	}
 
 	void Renderer::loadShape(const std::string path, const std::string name) {

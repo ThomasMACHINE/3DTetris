@@ -16,8 +16,8 @@ public:
 private:
 	float m_lastDrop;
 	float m_lastInput;
-	float m_updateTimer = 1.f;
-	float m_inputCooldown = 0.2f;
+	float m_updateTimer = 2.f;
+	float m_inputCooldown = 0.7f;
 	glm::vec3 m_movement;
 	engine::s_Ptr<Box> m_activeBlock;
 };
