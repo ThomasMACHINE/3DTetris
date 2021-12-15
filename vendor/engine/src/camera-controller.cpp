@@ -19,19 +19,19 @@ namespace engine {
 	void CameraController::onUpdate(Time ts) {
 
 		// Camera movement controls
-		if (Input::isKeyPressed(GLFW_KEY_A)) {
-			// Utilize crossproduct to get side movement based on looking direction
-			m_CameraPosition -= glm::normalize(glm::cross(m_Camera.getFront(), m_Camera.getUp())) * m_CameraTranslationSpeed * ts.getSeconds();
-		}
-		else if (Input::isKeyPressed(GLFW_KEY_D)) {
-			m_CameraPosition += glm::normalize(glm::cross(m_Camera.getFront(), m_Camera.getUp())) * m_CameraTranslationSpeed * ts.getSeconds();
-		}
-		if (Input::isKeyPressed(GLFW_KEY_W)) {
-			m_CameraPosition += m_Camera.getFront() * m_CameraTranslationSpeed * ts.getSeconds();
-		}
-		else if (Input::isKeyPressed(GLFW_KEY_S)) {
-			m_CameraPosition -= m_Camera.getFront() * m_CameraTranslationSpeed * ts.getSeconds();
-		}
+		//if (Input::isKeyPressed(GLFW_KEY_A)) {
+		//	// Utilize crossproduct to get side movement based on looking direction
+		//	m_CameraPosition -= glm::normalize(glm::cross(m_Camera.getFront(), m_Camera.getUp())) * m_CameraTranslationSpeed * ts.getSeconds();
+		//}
+		//else if (Input::isKeyPressed(GLFW_KEY_D)) {
+		//	m_CameraPosition += glm::normalize(glm::cross(m_Camera.getFront(), m_Camera.getUp())) * m_CameraTranslationSpeed * ts.getSeconds();
+		//}
+		//if (Input::isKeyPressed(GLFW_KEY_W)) {
+		//	m_CameraPosition += m_Camera.getFront() * m_CameraTranslationSpeed * ts.getSeconds();
+		//}
+		//else if (Input::isKeyPressed(GLFW_KEY_S)) {
+		//	m_CameraPosition -= m_Camera.getFront() * m_CameraTranslationSpeed * ts.getSeconds();
+		//}
 
 		// Camera flight controls
 		if (m_Flight) {
@@ -49,13 +49,13 @@ namespace engine {
 		if (m_Rotation) {
 
 			
-			if (Input::isKeyPressed(GLFW_KEY_Q)) {
-				m_CameraRotation += m_CameraRotationSpeed * ts;
-			}
-
-			if (Input::isKeyPressed(GLFW_KEY_E)) {
-				m_CameraRotation -= m_CameraRotationSpeed * ts;
-			}
+			//if (Input::isKeyPressed(GLFW_KEY_Q)) {
+			//	m_CameraRotation += m_CameraRotationSpeed * ts;
+			//}
+			//
+			//if (Input::isKeyPressed(GLFW_KEY_E)) {
+			//	m_CameraRotation -= m_CameraRotationSpeed * ts;
+			//}
 
 			m_Camera.setRotation(m_CameraRotation);
 		}

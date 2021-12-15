@@ -6,7 +6,7 @@ class Shape {
 public:
 	Shape();
 
-	void onUpdate(engine::Time ts);
+	void onUpdate(engine::Time ts, int signal);
 	//construction for shapes
 	void constructZ();
 	void constructT();
@@ -23,12 +23,17 @@ public:
 	void posRoll();
 	void negRoll();
 	//Translation functions 
-	void setApproval(bool approval) {m_approved = approval; }
-	void setOrientation();
+	void nextToCurrent();
+	void submitPositions();
+	void revertPositions();
 	void findPositions();
-	std::vector<engine::s_Ptr<glm::vec3>> getPositions();
+	std::vector<glm::vec3> getPositions() { return realPositions; }
 	//Mutator and accessor methods
 	std::vector<engine::s_Ptr<Box>> getBoxes() { return m_Boxes; }
+	void clearBoxes() { m_Boxes.clear(); }
+
+	//Variables
+	std::vector<glm::vec3> realPositions;
 private:
 	int m_orientation[3][3][3];
 	int m_nextOrientation[3][3][3];
@@ -40,9 +45,8 @@ private:
 	std::vector<engine::s_Ptr<Box>> m_Boxes;
 	bool m_approved;
 	//Translation variables
-	glm::vec3 realWorldCoordinate = { 3,3,11 };
-
-	std::vector<glm::vec3> realPositions;
+	glm::vec3 realWorldCoordinate = { 3,3,10 };
+	glm::vec3 newCoordinate;
 	//Timeholder
 	float updateTime = 2.f,
 		lastUpdate = 0.f;
@@ -50,31 +54,64 @@ private:
 
 Shape::Shape() {}
 
-
-void Shape::onUpdate(engine::Time ts)
+//A really cool idea for this signal system is to make inverted signals
+//As most of these are negative / positive action, we can make the
+//linked ones -X for negative action and +X for positive action
+void Shape::onUpdate(engine::Time ts, int signal)
 {
-	lastUpdate += ts;
-	
-	if (lastUpdate < updateTime) { return; }
-
-	lastUpdate = 0.f;
-	realPositions.clear();
-	
-	posRoll();
-	findPositions();
-	int size = realPositions.size();
-
-	int counter = 0;
-	for (auto it : realPositions)
+	lastUpdate += ts;								
+													
+	switch (signal)
 	{
-		engine::s_Ptr<Box> box = m_Boxes[counter];
-		box->setVirtualPosition(realPositions[counter]);
-		setOrientation();
-		counter++;
+	case 0:
+		newCoordinate = realWorldCoordinate;
+		nextToCurrent();
+		break;
+	case 1:
+		newCoordinate = { realWorldCoordinate.x, realWorldCoordinate.y, realWorldCoordinate.z - 1};			//	===   Return Codes and their meaning ====
+		nextToCurrent();																					//
+		break;																								// 0 - do nothing
+	case 2:																									// 1 - go downwards
+		newCoordinate = { realWorldCoordinate.x, realWorldCoordinate.y + 1, realWorldCoordinate.z };		// 2 - go forwards
+		nextToCurrent();																					// 3 - go backwards
+		break;																								// 4 - go right	
+	case 3:																									// 5 - go left
+		newCoordinate = { realWorldCoordinate.x, realWorldCoordinate.y - 1, realWorldCoordinate.z };		// 6 - posYaw
+		nextToCurrent();																					// 7 - negYaw	
+		break;																								// 8 - posRoll	
+	case 4:																									// 9 - negRoll	
+		newCoordinate = { realWorldCoordinate.x + 1, realWorldCoordinate.y, realWorldCoordinate.z };		//10 - posPitch	
+		nextToCurrent();																					//11 - negPitch
+		break;										
+	case 5:											
+		newCoordinate = { realWorldCoordinate.x - 1, realWorldCoordinate.y, realWorldCoordinate.z };
+		nextToCurrent();
+		break;
+	case 6:
+		rotateRight();
+		break;
+	case 7:
+		rotateLeft();
+		break;
+	case 8:
+		posRoll();
+		break;
+	case 9:
+		negRoll();
+		break;
+	case 10:
+		posPitch();
+		break;
+	case 11:
+		negPitch();
+		break;
 	}
-}
+	findPositions();
+}													
+													
 void Shape::findPositions() 
 {
+	realPositions.clear();
 	for (int x = 0; x < 3; x++) {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -127,6 +164,10 @@ void Shape::constructZ()
 	m_orientation[1][0][1] = 1;								//[0, 1, 0]
 	m_orientation[1][1][1] = 1; m_orientation[1][1][2] = 1;	//[0, 1, 1]
 	m_orientation[1][2][2] = 1;								//[0, 0, 1]
+	//Set nextPosition to current
+	nextToCurrent();
+	newCoordinate = { 3,3,10 };
+	realWorldCoordinate = { 3,3,10 };
 	//Now need to push back the objects
 	for (int i = 0; i < 4; i++) {
 		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
@@ -149,6 +190,11 @@ void Shape::constructT()
 	m_orientation[1][0][1] = 1;								//[0, 1, 0]
 	m_orientation[1][1][1] = 1; m_orientation[1][1][2] = 1;	//[1, 1, 1]
 	m_orientation[1][1][0] = 1;								//[0, 0, 0]
+	
+	nextToCurrent();
+	newCoordinate = { 3,3,10 };
+	realWorldCoordinate = { 3,3,10 };
+
 	//Now need to push back the objects
 	for (int i = 0; i < 4; i++) {
 		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
@@ -171,6 +217,11 @@ void Shape::constructL()
 	m_orientation[1][0][1] = 1;									//[0, 1, 0]
 	m_orientation[1][1][1] = 1; 								//[0, 1, 0]
 	m_orientation[1][2][1] = 1;	m_orientation[1][2][2] = 1;		//[0, 1, 1]
+	
+	nextToCurrent();
+	newCoordinate = { 3,3,10 };
+	realWorldCoordinate = { 3,3,10 };
+	
 	//Now need to push back the objects
 	for (int i = 0; i < 4; i++) {
 		engine::s_Ptr<Box> box = engine::m_SPtr<Box>(glm::vec3(0.f, 0.f, 0.f),
@@ -346,13 +397,49 @@ void Shape::negRoll()
 }
 
 //This function does the equivalent to :  m_orientation = m_nextOrientation
-void Shape::setOrientation()
+void Shape::submitPositions()
 {
+	int counter = 0;
+	for (auto it : realPositions)
+	{
+		engine::s_Ptr<Box> box = m_Boxes[counter];
+		box->setVirtualPosition(realPositions[counter]);
+		counter++;
+	}
+
+	realWorldCoordinate = newCoordinate;
+
 	for (int x = 0; x < 3; x++) {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 			
 				m_orientation[x][i][j] = m_nextOrientation[x][i][j];
+			}
+		}
+	}
+}
+
+//Revert both newCoordinate and orientation
+void Shape::revertPositions()
+{
+	newCoordinate = realWorldCoordinate;
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+
+				m_nextOrientation[x][i][j] = m_orientation[x][i][j];
+			}
+		}
+	}
+}
+
+void Shape::nextToCurrent() 
+{
+	for (int x = 0; x < 3; x++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+
+				m_nextOrientation[x][i][j] = m_orientation[x][i][j];
 			}
 		}
 	}

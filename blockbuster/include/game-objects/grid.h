@@ -31,7 +31,7 @@ public:
 	glm::vec3 getDimensions() { return { m_Length, m_Width, m_Height }; }
 
 	//Box generation
-	virtual engine::s_Ptr<Box> newActiveBox();
+	virtual void newActiveBox();
 private:
 	//Grid values
 	int m_Height = Height;
@@ -51,6 +51,7 @@ private:
 	//Game values
 	bool m_GameOver = false; // State - game is either over or ongoing
 	int m_Score = 0;         // Score - The score for current game
+	int m_Counter = 0;
 	//Game Texture 
 	engine::s_Ptr<engine::Texture> m_boxTexture = engine::m_SPtr<engine::Texture>("assets/textures/box2.jpg");
 	//Shader
@@ -78,16 +79,9 @@ void Grid::load()
 {
 	//Instantiate player
 	m_Player = engine::m_SPtr<Player>();
-	m_Player->setActiveBlock(newActiveBox());
-	//Instantiate Shape
+	//Instantiate Shape and load first block
 	m_Shape = engine::m_SPtr<Shape>();
-	m_Shape->constructL();
-	std::vector<engine::s_Ptr<Box>> boxList;
-	auto boxes = m_Shape->getBoxes();
-	for (auto it : boxes)
-	{
-		m_Boxes.push_back(it);
-	}
+	newActiveBox();
 	//LoadBoxes
 	engine::Renderer::loadShape("./assets/models/box", "box");
 	//Load Map
@@ -112,48 +106,61 @@ void Grid::load()
 	}
 	return;
 }
-//
+/*
+* Get movementCode from Player
+* 
+* do movementCalculation on activeBlock
+* 
+* if it collides, do not update
+* 
+* else update position
+*/
 void Grid::onUpdate(engine::Time ts) 
 {
-	m_Shape->onUpdate(ts);
+	int signal = 0;
+	signal = m_Player->onUpdate(ts);
+	m_Shape->onUpdate(ts, signal);
 
+	std::vector<glm::vec3> positions = m_Shape->realPositions;
+	bool collision = false;
+	for (auto &it :positions)
+	{
+		if (getOccupied(it.x, it.y, it.z) == true) 
+		{ 
+			collision = true; 
+		}
+	}
+	if(collision == true){ 
+		m_Shape->revertPositions(); 
+	}
+	else { 
+		m_Shape->submitPositions(); 
+	}
+	//Check for collision under the box
+	bool collisionUnder = false;
+	for (auto &it : positions)
+	{
+ 		if (getOccupied(it.z, it.y, it.z - 1) == true) 
+		{ 
+			collisionUnder = true; 
+			APP_INFO("DEBUGLINE");
+		}
+	}
+	if(collisionUnder == true)
+	{
+		auto boxList = m_Shape->getBoxes();
+		for (auto &it : boxList)
+		{
+			it->solidify();
+			it->setColourOnHeight(it->getVirtualPosition().z);
+		}
+		m_Shape->clearBoxes();
+		newActiveBox();
+	}
 	for (auto it : m_Boxes)
 	{
 		it->onUpdate(ts);
 	}
-	m_Player->onUpdate(ts);
-
-	engine::s_Ptr<Box> box = m_Player->getActiveBlock();
-	//Find movementInput and calculate final position
-	glm::vec3 oldPos = m_Player->getActiveBlock()->getVirtualPosition();
-	glm::vec3 movement = m_Player->getMovement();
-	//Position
-	glm::vec3 nextPos = oldPos + movement;
-	int x = nextPos.x, 
-		y = nextPos.y, 
-		z = nextPos.z;
-	//CollisionTesting - Only solidify if there is a block below
-	if (getOccupied(x,y,z))
-	{
-		box->setVirtualPosition(oldPos);
-	}
-	//Check for collision under the box, will not enter if it collided with a wall
-	else if (getOccupied(x,y,z - 1))
-	{
-		//Set to grid
-		m_GridMatrix[x][y][z] = 1;
-		box->setVirtualPosition(nextPos);
-		box->setColourOnHeight(z);
-		box->solidify();
-		//Give player a new activeBlock
-		engine::s_Ptr<Box> newBox = newActiveBox();
-		m_Player->setActiveBlock(newBox);
-	}
-	else
-	{
-		box->setVirtualPosition(nextPos);
-	}
-
 	return;
 }
 
@@ -176,10 +183,10 @@ bool Grid::getOccupied(int x, int y, int z)
 {
 	//A block with height 2 might be placed when there is 1 slot left
 	//Simple solution until I can think of a better way to avoid out of index
-	if (z > m_Height || y > m_Width || x > m_Length) 
+	if (x > m_Length || y > m_Width || z > m_Height) 
 	{
 		APP_INFO("Do not go out of index!");
-		return true;
+		return false;
 	}
 	//Precaution incase something weird happens
 	else if (z < 0 || y < 0 || x < 0)
@@ -206,14 +213,31 @@ bool Grid::getOccupied(int x, int y, int z)
 	}
 }
 
-engine::s_Ptr<Box> Grid::newActiveBox() 
+//Sets new active boxes and adds them to m_Boxes in Grid 
+void Grid::newActiveBox() 
 {
-	//Create new box
-	engine::s_Ptr<Box> newBox = engine::m_SPtr<Box>(startPos, standardSize, standardColour);
-	//Make box transparent
-	newBox->transperice();
+	//Cycle through different Letters
+	switch (m_Counter)
+	{
+	case 0:
+		m_Shape->constructL();
+		m_Counter = 1;
+		break;
+	case 1:
+		m_Shape->constructT();
+		m_Counter = 2;
+		break;
+	case 2:
+		m_Shape->constructZ();
+		m_Counter = 0;
+		break;
+	}
+	m_Shape->findPositions();
+	auto newBoxes = m_Shape->getBoxes();
 	//Add to vector
-	m_Boxes.push_back(newBox);
-
-	return newBox;
+	for (auto it : newBoxes) {
+		m_Boxes.push_back(it);
+		it->transperice();
+	}
+	return;
 }

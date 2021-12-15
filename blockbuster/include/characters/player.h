@@ -5,7 +5,7 @@ class Player {
 public:
 	Player();
 	
-	virtual void onUpdate(engine::Time ts);
+	virtual int onUpdate(engine::Time ts);
 	
 	//Accessor & Mutator methods
 	engine::s_Ptr<Box> getActiveBlock() { return m_activeBlock; }
@@ -26,57 +26,100 @@ Player::Player()
 {
 	return;
 }
-void Player::onUpdate(engine::Time ts) 
+int Player::onUpdate(engine::Time ts) 
 {
 	//Update time since last update with timestep
 	m_lastDrop += ts;
 	m_lastInput += ts;
 
-	m_movement = { 0,0,0 };
-
 	if (m_lastDrop > m_updateTimer) 
 	{
 		m_lastDrop = 0.f;
-		m_movement = { 0,0,-1 };
+		return 1;
 	}
 	
-	//Set a limit to how often we check for inputs
+	//Game runs too quick so we
+	//set a limit to how often we check for inputs
 	if (m_lastInput < m_inputCooldown)
 	{ 
-		APP_INFO("Stopped multiple input");
-		return;  
+		return 0;  
 	}
-	//Upwards
-	if (engine::Input::isKeyPressed(GLFW_KEY_UP)) 
-	{
+	//downwards
+	if (engine::Input::isKeyPressed(GLFW_KEY_SPACE))		//	===   Return Codes and their meaning ====
+	{														//
+		m_lastInput = 0.f;									// 0 - do nothing
+		return 1;											// 1 - go downwards
+	}														// 2 - go forwards
+	//Upwards												// 3 - go backwards
+	if (engine::Input::isKeyPressed(GLFW_KEY_UP))    		// 4 - go right	
+	{														// 5 - go left
+		m_lastInput = 0.f;									// 6 - posYaw
+		return 2;											// 7 - negYaw	
+	}														// 8 - posRoll	
+	//Backwards												// 9 - negRoll	
+	if (engine::Input::isKeyPressed(GLFW_KEY_DOWN)) 		//10 - posPitch	
+	{														//11 - negPitch
 		m_lastInput = 0.f;
-		m_movement = { 0, 1, 0 };
-	}
-	//Downwards
-	if (engine::Input::isKeyPressed(GLFW_KEY_DOWN)) 
-	{
+		return 3;												
+	}															
+	//Right														
+	if (engine::Input::isKeyPressed(GLFW_KEY_RIGHT)) 			
+	{								
 		m_lastInput = 0.f;
-		m_movement = { 0, -1, 0 };
-	}
-	//Right
-	if (engine::Input::isKeyPressed(GLFW_KEY_RIGHT)) 
-	{
-		m_lastInput = 0.f;
-		m_movement = { 1, 0, 0 };
-	}
+		return 4;												
+	}															
 	//Left
 	if (engine::Input::isKeyPressed(GLFW_KEY_LEFT)) 
 	{
 		m_lastInput = 0.f;
-		m_movement = { -1, 0, 0 };
+		return 5;
 	}
-	if (engine::Input::isKeyPressed(GLFW_KEY_SPACE))
+	//posYaw
+	if (engine::Input::isKeyPressed(GLFW_KEY_E))
 	{
 		m_lastInput = 0.f;
-		m_lastDrop = 0.f;
-		m_movement = { 0, 0, -1 };
+		return 6;
 	}
-
+	if (engine::Input::isKeyPressed(GLFW_KEY_D))
+	{
+		m_lastInput = 0.f;
+		return 7;
+	}
+	if (engine::Input::isKeyPressed(GLFW_KEY_W))
+	{
+		m_lastInput = 0.f;
+		return 8;
+	}
+	if (engine::Input::isKeyPressed(GLFW_KEY_S))
+	{
+		m_lastInput = 0.f;
+		return 9;
+	}
+	if (engine::Input::isKeyPressed(GLFW_KEY_Q))
+	{
+		m_lastInput = 0.f;
+		return 10;
+	}
+	if (engine::Input::isKeyPressed(GLFW_KEY_Q))
+	{
+		m_lastInput = 0.f;
+		return 11;
+	}
+	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
